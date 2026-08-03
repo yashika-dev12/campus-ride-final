@@ -108,3 +108,46 @@
   background-clip: text;
   color: transparent;
 }
+
+/* Custom date/time picker layout utilities to prevent truncation and icon overlapping */
+.custom-datetime-input {
+  position: relative;
+  min-width: 0;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+.custom-datetime-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 10;
+}
+
+.custom-datetime-input::-webkit-clear-button,
+.custom-datetime-input::-webkit-inner-spin-button {
+  display: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0 !important;
+}
+
+.custom-datetime-input::-webkit-datetime-edit {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.custom-datetime-input::-webkit-datetime-edit-fields-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+

@@ -1535,27 +1535,34 @@ function OfferRideScreen({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="glass rounded-2xl p-5 min-h-[110px]">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Departure
-                </p>
-                <p className="mt-3 flex items-center gap-1.5 font-semibold">
-                  <Calendar className="h-5 w-5" />
-                  <input
-                    type="date"
-                    value={date}
-                    min={MIN_DATE()}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="min-w-0 flex-1 bg-transparent font-semibold outline-none"
-                  />
-                </p>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="bg-transparent text-sm text-muted-foreground outline-none"
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="glass rounded-2xl p-4 min-h-[110px] flex flex-col justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Departure
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold">
+                      <Calendar className="h-4 w-4 shrink-0 text-[color:var(--primary)]" />
+                      <input
+                        type="date"
+                        value={date}
+                        min={MIN_DATE()}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="custom-datetime-input min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none cursor-pointer"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        className="custom-datetime-input min-w-0 flex-1 bg-transparent text-sm font-semibold text-muted-foreground outline-none cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="glass rounded-2xl p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -4108,6 +4115,127 @@ const CAMPUS_EVENTS: CampusEvent[] = [
   },
 ];
 
+/* Reusable Event Banner Image Component with Fallback */
+function EventBanner({
+  name,
+  venue,
+  status,
+  coverGradient,
+  isDetail = false,
+}: {
+  name: string;
+  venue: string;
+  status: string;
+  coverGradient: string;
+  isDetail?: boolean;
+}) {
+  const baseFilename = name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
+  const [imageState, setImageState] = useState<"trying-jpg" | "trying-webp" | "fallback">("trying-jpg");
+
+  const jpgUrl = `/events/${baseFilename}.jpg`;
+  const webpUrl = `/events/${baseFilename}.webp`;
+
+  const handleJpgError = () => {
+    setImageState("trying-webp");
+  };
+
+  const handleWebpError = () => {
+    setImageState("fallback");
+  };
+
+  const showImage = imageState !== "fallback";
+  const currentSrc = imageState === "trying-jpg" ? jpgUrl : webpUrl;
+  const currentOnError = imageState === "trying-jpg" ? handleJpgError : handleWebpError;
+
+  if (isDetail) {
+    return (
+      <div className="h-48 sm:h-64 relative rounded-[2rem] overflow-hidden flex flex-col justify-end p-6 sm:p-8 text-white border border-white/60 shadow-[var(--shadow-glass)] group">
+        <div
+          className="absolute inset-0 transition-opacity duration-300"
+          style={{ background: coverGradient }}
+        />
+        {imageState === "fallback" && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+            <ImageIcon className="w-32 h-32 text-white" />
+          </div>
+        )}
+        {showImage && (
+          <img
+            src={currentSrc}
+            alt={name}
+            onError={currentOnError}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-20">
+          <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-indigo-950 text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg border border-white/30">
+            ⭐ Official Transportation Partner
+          </span>
+        </div>
+        <div className="relative z-20 max-w-2xl mt-auto">
+          <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+            status === "Live" ? "bg-emerald-500 text-white animate-pulse" : "bg-black/40 border border-white/20"
+          }`}>
+            {status}
+          </span>
+          <h3 className="font-display text-2xl sm:text-3xl font-extrabold leading-tight mt-2.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+            {name}
+          </h3>
+          <p className="text-xs sm:text-sm opacity-90 font-medium flex items-center gap-1.5 mt-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            <MapPin className="h-4 w-4 shrink-0" /> {venue}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-[200px] relative overflow-hidden flex flex-col justify-end p-5 text-white">
+      <div
+        className="absolute inset-0 transition-opacity duration-300"
+        style={{ background: coverGradient }}
+      />
+      {imageState === "fallback" && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-10">
+          <ImageIcon className="w-20 h-20 text-white" />
+        </div>
+      )}
+      {showImage && (
+        <img
+          src={currentSrc}
+          alt={name}
+          onError={currentOnError}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-10 pointer-events-none" />
+      <div className="absolute top-4 right-4 z-20 flex gap-1.5">
+        <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${
+          status === "Live" ? "bg-emerald-500 text-white animate-pulse" : "bg-zinc-900/60 text-white border border-white/10"
+        }`}>
+          {status}
+        </span>
+      </div>
+      <div className="relative z-20">
+        <h4 className="font-display text-lg font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+          {name}
+        </h4>
+        <p className="text-xs opacity-90 font-medium flex items-center gap-1 mt-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          <MapPin className="h-3.5 w-3.5 shrink-0" /> {venue}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function EventsListScreen({
   go,
   onSelectEvent,
@@ -4149,26 +4277,12 @@ function EventsListScreen({
                 className="glass rounded-[2rem] overflow-hidden flex flex-col justify-between border border-white/60 shadow-[var(--shadow-glass)] group hover:border-[color:var(--primary)]/40 transition-all duration-300"
               >
                 {/* Event Card Header (Image/Gradient block) */}
-                <div
-                  className="h-36 relative flex flex-col justify-end p-5 text-white"
-                  style={{ background: ev.coverGradient }}
-                >
-                  <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-                  <div className="absolute top-4 right-4 flex gap-1.5">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm ${
-                      ev.status === "Live" ? "bg-emerald-500 text-white animate-pulse" : "bg-zinc-900/60 text-white"
-                    }`}>
-                      {ev.status}
-                    </span>
-                  </div>
-                  
-                  <div className="relative z-10">
-                    <h4 className="font-display text-lg font-bold leading-tight">{ev.name}</h4>
-                    <p className="text-xs opacity-90 font-medium flex items-center gap-1 mt-0.5">
-                      <MapPin className="h-3 w-3" /> {ev.venue}
-                    </p>
-                  </div>
-                </div>
+                <EventBanner
+                  name={ev.name}
+                  venue={ev.venue}
+                  status={ev.status}
+                  coverGradient={ev.coverGradient}
+                />
 
                 {/* Event Card Content */}
                 <div className="p-5 flex-1 flex flex-col justify-between">
@@ -4277,31 +4391,13 @@ function EventDetailsScreen({
         <div className="space-y-6">
           
           {/* Top Banner Cover Image */}
-          <div
-            className="h-48 sm:h-64 relative rounded-[2rem] overflow-hidden flex flex-col justify-end p-6 sm:p-8 text-white border border-white/60 shadow-[var(--shadow-glass)]"
-            style={{ background: event.coverGradient }}
-          >
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-            <div className="absolute top-4 sm:top-6 left-4 sm:left-6">
-              <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-indigo-950 text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg border border-white/30">
-                ⭐ Official Transportation Partner
-              </span>
-            </div>
-            
-            <div className="relative z-10 max-w-2xl">
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                event.status === "Live" ? "bg-emerald-500" : "bg-black/40 border border-white/20"
-              }`}>
-                {event.status}
-              </span>
-              <h3 className="font-display text-2xl sm:text-3xl font-extrabold leading-tight mt-1">
-                {event.name}
-              </h3>
-              <p className="text-xs sm:text-sm opacity-90 font-medium flex items-center gap-1.5 mt-1">
-                <MapPin className="h-4 w-4" /> {event.venue}
-              </p>
-            </div>
-          </div>
+          <EventBanner
+            name={event.name}
+            venue={event.venue}
+            status={event.status}
+            coverGradient={event.coverGradient}
+            isDetail={true}
+          />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:items-start">
             
