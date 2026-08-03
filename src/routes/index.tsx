@@ -2151,7 +2151,7 @@ function RideDetailsScreen({
                   <p className="text-xs text-muted-foreground">
                     {ride.driver.dept} · Chitkara University
                   </p>
-                  <div className="mt-1 flex items-center gap-3 text-xs">
+                  <div className="mt-1 flex items-center gap-1.5 text-xs">
                     <span className="flex items-center gap-1 font-semibold">
                       <Star className="h-3.5 w-3.5 fill-[color:var(--mint)] text-[color:var(--mint)]" />{" "}
                       {ride.driver.rating}
@@ -2219,6 +2219,7 @@ function RideDetailsScreen({
               <div className="space-y-2 text-sm">
                 <Row label="Estimated fuel" value={`₹${Math.round(ride.totalFare * 0.8)}`} />
                 <Row label="Toll" value={`₹${Math.round(ride.totalFare * 0.2)}`} />
+
                 <Row
                   label={`Split across ${(ride.totalSeats ?? 0) + 1}`}
                   value={`÷ ${(ride.totalSeats ?? 0) + 1}`}
@@ -4020,7 +4021,7 @@ const CAMPUS_EVENTS: CampusEvent[] = [
   {
     id: "ev_rangrez",
     name: "Rangrez 2026",
-    date: "18 March 2026",
+    date: "18 August 2026",
     time: "10:00 AM - 8:00 PM",
     venue: "Chitkara University Arena",
     attendees: "1200+",
@@ -4042,7 +4043,7 @@ const CAMPUS_EVENTS: CampusEvent[] = [
   {
     id: "ev_hackathon",
     name: "Hackathon 2026",
-    date: "25 March 2026",
+    date: "25 August 2026",
     time: "9:00 AM onwards (36 hrs)",
     venue: "Chitkara Auditorium & CSE Labs",
     attendees: "800+",
@@ -4064,7 +4065,7 @@ const CAMPUS_EVENTS: CampusEvent[] = [
   {
     id: "ev_sportsfest",
     name: "Sports Fest 2026",
-    date: "2 April 2026",
+    date: "2 September 2026",
     time: "8:00 AM - 6:00 PM",
     venue: "University Sports Complex",
     attendees: "1500+",
@@ -4086,7 +4087,7 @@ const CAMPUS_EVENTS: CampusEvent[] = [
   {
     id: "ev_techconf",
     name: "Tech Conference 2026",
-    date: "10 April 2026",
+    date: "10 September 2026",
     time: "10:00 AM - 4:00 PM",
     venue: "Seminar Hall-3",
     attendees: "300+",
@@ -4759,7 +4760,7 @@ function PartnerScreen({ back }: { back: () => void }) {
                     Event Type
                   </label>
                   <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 pr-8 relative">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <Calendar className="h-4 w-4 shrink-0" />
                     <select
                       value={eventType}
                       onChange={(e) => setEventType(e.target.value)}
